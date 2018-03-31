@@ -3,5 +3,7 @@
 
 void autonDefault();
 
+// auton steps
+
 #include "autonDefault.c"
 #endif // _AUTON_DEFAULT_H_

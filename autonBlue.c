@@ -1,232 +1,157 @@
+#include "motion.h"
+#include "sensors.h"
 
 void autonBlue() {
-	//if(Program == 1){
-	SensorValue[pistonOne] = 0;
-	SensorValue[pistonTwo] = 0;
-	SensorValue[I2C_1] = 0;
-	SensorValue[I2C_2] = 0;
+	b_scorePreload();
 
-	SensorValue[I2C_3] = 0;
-	while((SensorValue[I2C_3] >= -720))
-	{
-		motor[liftLeft] = 125;
-		motor[liftRight] = 125;
+	b_moveToBackBar();
+
+	b_grabFirstMobileGoal();
+
+	b_firstCorrectionTurn();
+
+	b_grabSecondMobileGoal();
+
+	b_scoreSecondCode();
+
+	b_moveToBar();
+
+	b_scoreMobileGoal();
+}
+// ====== step definitions ======
+void b_scorePreload() {
+	while((SensorValue[mobileEncoder] >= -720)) {
+		liftSpeed(LIFT_UP);
 	}
-	motor[liftLeft] = 80;
-	motor[liftRight] = 80;
+	lockLift();
 	wait1Msec(100);
-	motor[frictionDrum2] = 10;
+	frictionDrumSpeed(DRUM_HOLD);
 
 	//first forward to score preload
-	while((SensorValue[I2C_1] <= 450))
-	{
-		motor[frontLeft] = 60;
-		motor[frontRight] = -60;
-		motor[backRight] = 60;
-		motor[backLeft] = -60;
-	}
-	motor[frontLeft] = 0;
-	motor[frontRight] = 0;
-	motor[backRight] = 0;
-	motor[backLeft] = 0;
+	driveRaw(450);
 	wait1Msec(100);
 
 	//Pre-Load score
-	SensorValue[pistonOne] = 1;
-	SensorValue[pistonTwo] = 1;
-	wait1Msec(100);
-	wait1Msec(500);
-	motor[frictionDrum2] = -127;
+	setPistons(PISTON_PUSH);
+	wait1Msec(600);
+	frictionDrumSpeed(DRUM_PULL);
 	wait1Msec(200);
-	motor[frictionDrum2] = 0;
+	frictionDrumSpeed(0);
 	wait1Msec(2000);
+}
 
-	SensorValue[I2C_1] = 0;
-	SensorValue[I2C_2] = 0;
-
+void b_moveToBackBar() {
 	//first backward to the back bar
-	while((SensorValue[I2C_1] >= -260))
-	{
-		motor[frontLeft] = -60;
-		motor[frontRight] = 60;
-		motor[backRight] = -60;
-		motor[backLeft] = 60;
-	}
-	motor[liftLeft] = 80;
-	motor[liftRight] = 80;
-	motor[frontLeft] = 0;
-	motor[frontRight] = 0;
-	motor[backRight] = 0;
-	motor[backLeft] = 0;
+	driveRaw(-260);
+	lockLift();
+	stopWheels();
+}
 
-
-
+void b_grabFirstMobileGoal() {
 	//first turn to line up with the mobile base
-	while((SensorValue[I2C_2] <= 665))
-	{
-		motor[frontLeft] = 30;
-		motor[frontRight] = 30;
-		motor[backRight] = -30;
-		motor[backLeft] = -30;
+	while((SensorValue[rightEncoder] <= 665)) {
+		turnSpeed(TURN_LEFT * .25);
 	}
-	motor[frontLeft] = 0;
-	motor[frontRight] = 0;
-	motor[backRight] = 0;
-	motor[backLeft] = 0;
+	stopWheels();
 	wait1Msec(100);
-	//extend mobile capture
-	while(SensorValue[I2C_4] > -700){
-		motor[mobileCapture] = 50;
-	}
 
-	motor[mobileCapture] = 0;
+
+	//extend mobile capture
+	while(SensorValue[liftEncoder] > -575) {
+		mobileCaptureSpeed(CAPTURE_EXTEND * .8);
+	}
+	mobileCaptureSpeed(0);
 	wait1Msec(100);
-	SensorValue[I2C_1] = 0;
-	SensorValue[I2C_2] = 0;
-	SensorValue[I2C_1] = 0;
-	SensorValue[I2C_2] = 0;
 
 
 	//second forward to grab the mobile goal
-	while((SensorValue[I2C_1] < 1000))
-	{
-		motor[frontLeft] = 60;
-		motor[frontRight] = -60;
-		motor[backRight] = 60;
-		motor[backLeft] = -60;
+	SensorValue[leftEncoder] = 0;
+	SensorValue[rightEncoder] = 0;
+	while((SensorValue[leftEncoder] < 1000)) {
+		driveSpeed(WHEELS_FORWARD * .5);
 	}
-	motor[frontLeft] = 0;
-	motor[frontRight] = 0;
-	motor[backRight] = 0;
-	motor[backLeft] = 0;
+	stopWheels();
 	wait1Msec(100);
-	motor[liftLeft] = 0;
-	motor[liftRight] = 0;
+	liftSpeed(0);
 	wait1Msec(600);
+}
 
-	SensorValue[I2C_1] = 0;
-	SensorValue[I2C_2] = 0;
-	wait1Msec(100);
-
+void b_firstCorrectionTurn() {
 	//second turn to correct
-	//while((SensorValue[I2C_2] >= 100))
-	//{
-	//	motor[frontLeft] = -60;
-	//	motor[frontRight] = -60;
-	//	motor[backRight] = 60;
-	//	motor[backLeft] = 60;
-	//}
-	motor[frontLeft] = 0;
-	motor[frontRight] = 0;
-	motor[backRight] = 0;
-	motor[backLeft] = 0;
+	SensorValue[leftEncoder] = 0;
+	SensorValue[rightEncoder] = 0;
+	while((SensorValue[rightEncoder] >= 100)) {
+	  turnSpeed(TURN_LEFT * .5);
+	}
+	stopWheels();
 	wait1Msec(100);
+	liftSpeed(0);
+}
 
-	motor[liftLeft] = 0;
-	motor[liftRight] = 0;
-
-	SensorValue[I2C_1] = 0;
-	SensorValue[I2C_2] = 0;
-	////thirdnforward tio grab the mobile goal
-	//	while((SensorValue[I2C_2] >= -400)) {
-	//		motor[frontLeft] 	= 60;
-	//		motor[frontRight] = -60;
-	//		motor[backLeft]		= -60;
-	//		motor[backRight]	= 60;
-	//	}
-
-	motor[frontLeft] = 0;
-	motor[frontRight] = 0;
-	motor[backRight] = 0;
-	motor[backLeft] = 0;
+void b_grabSecondMobileGoal() {
+	//third forward to grab the mobile goal
+	SensorValue[leftEncoder] = 0;
+	SensorValue[rightEncoder] = 0;
+	while((SensorValue[rightEncoder] >= -400)) {
+		driveSpeed(WHEELS_FORWARD * .5);
+	}
+	stopWheels();
 	wait1Msec(100);
+}
+
+void b_scoreSecondCode() {
 	//third forward to score the second cone
-	while((SensorValue[I2C_1] <= 400))
-	{
-		motor[frontLeft] = 60;
-		motor[frontRight] = -60;
-		motor[backRight] = 60;
-		motor[backLeft] = -60;
+	while((SensorValue[leftEncoder] <= 400)) {
+		driveSpeed(WHEELS_FORWARD * .5);
 	}
 	//retract mobile capture
-	while(SensorValue[I2C_4] < -300){
-		motor[mobileCapture] = -100;
+	while(SensorValue[liftEncoder] < -300) {
+		mobileCaptureSpeed(CAPTURE_RETRACT * .8);
 	}
-	motor[mobileCapture] = 10;
-	motor[frontLeft] = 0;
-	motor[frontRight] = 0;
-	motor[backRight] = 0;
-	motor[backLeft] = 0;
+	mobileCaptureSpeed(CAPTURE_EXTEND * .1);
+	stopWheels();
 	wait1Msec(100);
+}
 
-	SensorValue[I2C_1] = 0;
-	SensorValue[I2C_2] = 0;
-
+void b_moveToBar() {
 	//turn to align with the bar
-	while((SensorValue[I2C_2] <= 1000))
-	{
-		motor[frontLeft] = 60;
-		motor[frontRight] = 60;
-		motor[backRight] = -60;
-		motor[backLeft] = -60;
+	SensorValue[leftEncoder] = 0;
+	SensorValue[rightEncoder] = 0;
+	while((SensorValue[rightEncoder] <= 1000)) {
+		turnSpeed(TURN_LEFT * .5);
 	}
-	motor[frontLeft] = 0;
-	motor[frontRight] = 0;
-	motor[backRight] = 0;
-	motor[backLeft] = 0;
+	stopWheels();
 	//motor[mobileCapture1] = 100;
 	//motor[mobileCapture2] = 100;
 	//wait1Msec(700);
-	motor[mobileCapture] = 0;
+	mobileCaptureSpeed(0);
 
-	SensorValue[I2C_1] = 0;
-	SensorValue[I2C_2] = 0;
 	//fourth forward to get to the bar
-	while((SensorValue[I2C_1] <= 1500))
-	{
-		motor[frontLeft] = 60;
-		motor[frontRight] = -60;
-		motor[backRight] = 60;
-		motor[backLeft] = -60;
+	SensorValue[leftEncoder] = 0;
+	SensorValue[rightEncoder] = 0;
+	while((SensorValue[leftEncoder] <= 1500)) {
+		driveSpeed(WHEELS_FORWARD * .5);
 	}
-	motor[frontLeft] = 0;
-	motor[frontRight] = 0;
-	motor[backRight] = 0;
-	motor[backLeft] = 0;
+	stopWheels();
+}
 
+void b_scoreMobileGoal() {
 	//back up to score
-	while((SensorValue[I2C_1] <= 185))
-	{
-		motor[frontLeft] = 60;
-		motor[frontRight] = 60;
-		motor[backRight] = -60;
-		motor[backLeft] = -60;
-	}
+	driveRaw(-185);
 	//extend the mobile capture
-	while(SensorValue[I2C_4] > -600){
-		motor[mobileCapture] = 100;
+	while(SensorValue[liftEncoder] > -600) {
+		mobileCaptureSpeed(CAPTURE_EXTEND * .8);
 	}
-	motor[mobileCapture] = 0;
+	mobileCaptureSpeed(0);
 	wait1Msec(100);
-	motor[frontLeft] = 0;
-	motor[frontRight] = 0;
-	motor[backRight] = 0;
-	motor[backLeft] = 0;
+	stopWheels();
 	wait1Msec(100);
-	motor[frontLeft] = -125;
-	motor[frontRight] = 125;
-	motor[backRight] = 125;
-	motor[backLeft] = -125;
+	driveSpeed(WHEELS_FORWARD);
 	wait1Msec(1000);
-	motor[frontLeft] = 0;
-	motor[frontRight] = 0;
-	motor[backRight] = 0;
-	motor[backLeft] = 0;
+	stopWheels();
 	wait1Msec(100);
-	while(SensorValue[I2C_3] < 0){
-		motor[liftLeft] = -127;
-		motor[liftRight] = -127;
+	while(SensorValue[mobileEncoder] < 0){
+		liftSpeed(LIFT_DOWN);
 	}
-	motor[liftLeft] = 0;
-	motor[liftRight] = 0;
+	liftSpeed(0);
 }

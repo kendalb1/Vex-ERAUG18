@@ -1,29 +1,25 @@
 #include "userControl.h"
 
 task lockMobile() {
-	clearLCDLine(0);
-	displayLCDNumber(0, 0, varU);
-	if (varU == 0) {
-		varU = 1;
-		while (varU == 1) {
-  		int dif = SensorValue[mobileEncoder] + 350;
-  		motor[mobileCapture] = 127 * dif / 100;
-  	}
+	if (!mobileCaptureIsLocked) {// only run once
+		mobileCaptureIsLocked = true;
+		while (mobileCaptureIsLocked) {
+			const int dif = SensorValue[mobileEncoder] + 350;
+			motor[mobileCapture] = 127 * dif / 100;
+		}
 	}
 }
 task usercontrol() {
-	SensorValue[liftLeft] = 0;
-	SensorValue[liftRight] = 0;
 	while (true)
 	{
 		// Y component, X component, Rotation
-	  int strafeVal = C1RX;
-	  if (abs(strafeVal) < 20)
-	  	strafeVal = 0;
-		motor[frontLeft] = C1LY + C1LX + C1RX;
-		motor[frontRight] =  -C1LY + C1LX + C1RX;
-		motor[backRight] =  C1LY + C1LX - C1RX;
-		motor[backLeft] = -C1LY + C1LX - C1RX;
+		int strafeVal = C1RX;
+		if (abs(strafeVal) < 20)
+			strafeVal = 0;
+		motor[frontLeft] = C1LY + C1LX + strafeVal;
+		motor[frontRight] =  -C1LY + C1LX + strafeVal;
+		motor[backRight] =  C1LY + C1LX - strafeVal;
+		motor[backLeft] = -C1LY + C1LX - strafeVal;
 
 		// Lift Controls
 		if(vexRT [Btn5U] == 1) {
@@ -43,9 +39,9 @@ task usercontrol() {
 			displayLCDNumber(1, 0, idle);
 			motor[liftLeft] = motor[liftRight] = idle;
 		}
-		
-		static int drumIdle = 0;
+
 		// Friction Drum Controls
+		static int drumIdle = 0;
 		if(vexRT[Btn6U] == 1)
 		{
 			motor[frictionDrum2] = 127;
@@ -73,17 +69,20 @@ task usercontrol() {
 		}
 
 		//Mobile Goal control
-		if (vexRT[Ch2] > 50) {
-			motor[mobileCapture] = 127;
-		}
-		else if (vexRT[Ch2] < -50) {
-			motor[mobileCapture] = -127;
-		}
-		else if (vexRT[Btn8L] == 1){
+		if (vexRT[Btn8L] == 1){
 			startTask(lockMobile);
 		}
 		else {
-			motor[mobileCapture] = 0;
+			mobileCaptureIsLocked = false;
+			if (vexRT[Ch2] > 50) {
+				motor[mobileCapture] = 127;
+			}
+			else if (vexRT[Ch2] < -50) {
+				motor[mobileCapture] = -127;
+			}
+			else {
+				motor[mobileCapture] = 0;
+			}
 		}
 	}
 }

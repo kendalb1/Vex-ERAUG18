@@ -1,19 +1,34 @@
-#include "autonDefault.h"
-#include "preAuton.h"
 
 void pre_auton() {
 	// Set bStopTasksBetweenModes to false if you want to keep user created tasks running between
 	// Autonomous and Tele-Op modes. You will need to manage all user created tasks if set to false.
 	bStopTasksBetweenModes = true;
-	//Leave this value alone
-	int lcdScreenMin = 1;
-	//This keeps track of which program you want to run
-	int lcdScreen = 1;
-	//Change this value to be the maximum number of programs you want on the robot
-	int lcdScreenMax = 4;
 	//Turns on the Backlight
 	bLCDBacklight = true;
 
+	resetSensors();
+
+	selectAuton();
+}
+
+void resetSensors() {
+	SensorValue[pistonOne] = 0;
+	SensorValue[pistonTwo] = 0;
+	SensorValue[liftEncoder] = 0;
+	SensorValue[rightEncoder] = 0;
+	SensorValue[mobileEncoder] = 0;
+	SensorValue[liftEncoder] = 0;
+	resetGyro();
+}
+
+void resetGyro() {
+  SensorType[gyroSens] = sensorNone;
+	wait10Msec(100);
+	SensorType[gyroSens] = sensorGyro;
+	wait10Msec(100);
+}
+
+void selectAuton() {
 	//Copied from someone's sample code because the documentation for RobotC won't tell me anything useful
 	//These should logically work, but I'm not 100% sure
 	const short left = 1;
@@ -25,10 +40,11 @@ void pre_auton() {
 	displayLCDString(0, 0, "Auton:");
 	displayLCDNumber(1, 4, selectedAuton);
 	while (!autonConfirm) {
-		while (nLCDButtons == 0)
-			/* wait for button to be pressed*/;
+		while (nLCDButtons == 0) {
+			wait1Msec(10); // wait for button to be pressed
+		}
 
-		switch (nLCDButtons) {
+		switch ((int)nLCDButtons) {
 			case left:
 			  selectedAuton--;
 			  break;
@@ -57,7 +73,9 @@ void pre_auton() {
 	  clearLCDLine(1);
 		displayLCDNumber(1, 4, selectedAuton);
 
-		while (nLCDButtons != 0)
-			/* wait for button to be released */;
+		while (nLCDButtons != 0) {
+			/* wait for button to be released */
+	    wait1Msec(10);
+	  }
 	}
 }

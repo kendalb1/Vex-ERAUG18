@@ -1,15 +1,15 @@
+#include "motion.h"
+#include "sensors.h"
 
 void autonDefault() {
 	//Pre-Load score
-	SensorValue[pistonOne] = 1;
-	SensorValue[pistonTwo] = 1;
-	wait1Msec(100);
-	wait1Msec(500);
-	motor[frictionDrum2] = -127;
+  setPistons(PISTON_PUSH);
+	wait1Msec(600);
+	frictionDrumSpeed(DRUM_PULL);
 	wait1Msec(200);
-	motor[frictionDrum2] = 0;
+	frictionDrumSpeed(DRUM_HOLD);
 	wait1Msec(2000);
 
-	SensorValue[I2C_1] = 0;
-	SensorValue[I2C_2] = 0;
+	SensorValue[leftEncoder] = 0;
+	SensorValue[rightEncoder] = 0;
 }

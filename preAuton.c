@@ -22,7 +22,7 @@ void resetSensors() {
 }
 
 void resetGyro() {
-  SensorType[gyroSens] = sensorNone;
+	SensorType[gyroSens] = sensorNone;
 	wait10Msec(100);
 	SensorType[gyroSens] = sensorGyro;
 	wait10Msec(100);
@@ -46,31 +46,31 @@ void selectAuton() {
 
 		switch ((int)nLCDButtons) {
 			case left:
-			  selectedAuton--;
-			  break;
+				selectedAuton--;
+				break;
 			case center:
-			  autonConfirm = true;
-			  break;
+				autonConfirm = true;
+				break;
 			case right:
-		    selectedAuton++;
-			  break;
+				selectedAuton++;
+				break;
 			case left + center:
-			  break;
+				break;
 			case left + right:
-			  break;
+				break;
 			case center + right:
-			  break;
+				break;
 			case left + center + right:
-			  break;
+				break;
 		}
 
 		if (selectedAuton < 1)
 			selectedAuton = 1;
-	  else if (selectedAuton > nAutons)
-	  	selectedAuton = nAutons;
+		else if (selectedAuton > nAutons)
+			selectedAuton = nAutons;
 
 		// TODO draw LCD stuff
-	  clearLCDLine(1);
+		clearLCDLine(1);
 		displayLCDNumber(1, 4, selectedAuton);
 
 		while (nLCDButtons != 0) {

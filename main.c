@@ -32,6 +32,8 @@
 //Main competition background code...do not modify!
 #include "Vex_Competition_Includes.c"
 
+//#include "motionPlus.h" // must be included before preAuton.h
+
 #define  nAutons 4 // this should be the number of autons we have
 #include "preAuton.h" // must be included after nAutons define
 

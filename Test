@@ -1,0 +1,34 @@
+#pragma config(Sensor, dgtl1,  Button,         sensorTouch)
+#pragma config(Motor,  port1,           chainDrive,    tmotorVex393HighSpeed_HBridge, openLoop)
+#pragma platform(VEX2)
+#pragma competitionControl(Competition)
+#include "Vex_Competition_Includes.c"
+
+
+void pre_auton()
+{
+  bStopTasksBetweenModes = true;
+}
+
+task autonomous()
+{
+  AutonomousCodePlaceholderForTesting();
+}
+
+task usercontrol()
+{
+  while (true)
+  {
+		if (sensorValue(Button) == 1)
+		{
+			motor(chainDrive) = 127;
+		}
+		else if(sensorValue(Button) == 0)
+		{
+			motor(chainDrive) = 0;
+		}
+		wait1Msec(1000);
+
+
+  }
+}
